@@ -51,9 +51,14 @@ void rotateDial(Rotation r, int & dialPosition){
     else if (r.direction == "L"){
         dialPosition -= r.distance;
         if (dialPosition < 0 ){
-            dialPosition = 100 - std::abs(dialPosition%100);
-            // int hundreds{dialPosition%100};
-            // dialPosition += (hundreds*100);
+            int hundreds = (dialPosition%100);
+            if (hundreds == 0){
+                dialPosition = 0;
+            }
+            else{
+                dialPosition = 100 - std::abs(hundreds);
+            }
+
         }
     }
     else{
