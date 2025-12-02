@@ -56,7 +56,7 @@ void rotateDial(Rotation r, int & dialPosition){
                 dialPosition = 0;
             }
             else{
-                dialPosition = 100 - std::abs(remainder);
+                dialPosition = (100 - std::abs(remainder))%100;
             }
         }
     }
@@ -72,30 +72,37 @@ void rotateDial(Rotation r, int & dialPosition){
  * @return int Number of times the dial passed 0
  */
 int rotateDial2(Rotation r, int & dialPosition){
-    int zeroPasses{0};
+    int zeroPasses{r.distance/100};
+    int startPosition = dialPosition;
+
+    // Turn dial based on direction
     if (r.direction == "R"){
-        dialPosition += r.distance;
-        if (dialPosition > 99 ){
-            zeroPasses += dialPosition/100;
-            dialPosition = dialPosition%100;
-        }
+        dialPosition += (r.distance)%100;
     }
     else if (r.direction == "L"){
-        dialPosition -= r.distance;
-        if (dialPosition < 0 ){
-            zeroPasses += abs(dialPosition/100)+1;
-            int remainder = (dialPosition%100);
-            if (remainder == 0){
-                dialPosition = 0;
-            }
-            else{
-                dialPosition = 100 - std::abs(remainder);
-            }
-        }
+        dialPosition -= (r.distance)%100;
     }
     else{
         std::cerr << "Incorrect direction " << r.direction;
     }
+
+    if (dialPosition > 99 ){
+        if (startPosition != 0){
+            zeroPasses++;
+        }
+        dialPosition = dialPosition%100;
+    }
+    else if (dialPosition < 0 ){
+        if (startPosition != 0){
+            zeroPasses++;
+        }
+        int remainder = (dialPosition%100);
+        dialPosition = (100 + remainder)%100;
+    }
+    else if(dialPosition == 0){
+        zeroPasses++;
+    }
+
     return zeroPasses;
 };
 
@@ -111,14 +118,15 @@ void parseInputAndRotate(std::ifstream & input, int & dialPosition, int & zeroCo
     while (std::getline(input, strLine)){
         Rotation rLine = convertStringToRotation(strLine);
         // rotate dial function, performs a single Rotation
-        // Part 1
+
+        // Part 1 - Only count landing on 0
         // rotateDial(rLine, dialPosition);
         // std::cout << "The dial is rotated " << strLine << " to point at " << dialPosition << "." << std::endl;
         // if (dialPosition == 0){
         //     zeroCount++;
         // }
 
-        // Part 2
+        // Part 2 - Count all times passing 0
         int zeroPasses = rotateDial2(rLine, dialPosition);
         if (zeroPasses > 0){
             std::cout << "The dial is rotated " << strLine << " to point at " << dialPosition
@@ -128,13 +136,13 @@ void parseInputAndRotate(std::ifstream & input, int & dialPosition, int & zeroCo
         else {
             std::cout << "The dial is rotated " << strLine << " to point at " << dialPosition << "." << std::endl;
         }
+
     }
 };
 
 
 int main(int argc, char* argv[]){
-    std::cout << "test";
-
+    std::cout << std::endl;
     if (argc != 2){
         std::cerr << "Error, incorrect number of arguments: " << argc << std::endl;
 		return 1;
