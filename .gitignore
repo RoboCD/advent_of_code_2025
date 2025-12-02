@@ -39,3 +39,6 @@
 
 # debug information files
 *.dwo
+
+# Advent of code input files
+Day_*/*input.txt
