@@ -12,19 +12,22 @@
 #include <vector>
 #include <string>
 
-std::pair<int,int> splitRangeString(std::string rangeStr){
+using Range = std::pair<unsigned long long, unsigned long long>;
+using RangeList = std::vector<Range>;
+
+Range splitRangeString(std::string rangeStr){
     size_t hyphenIndex{};
     hyphenIndex = rangeStr.find('-');
-    int startRange = std::stoi(rangeStr.substr(0,hyphenIndex));
-    int endRange = std::stoi(rangeStr.substr(hyphenIndex+1));
-    return std::pair<int,int>(startRange, endRange);
+    long startRange = std::stoull(rangeStr.substr(0,hyphenIndex));
+    long endRange = std::stoull(rangeStr.substr(hyphenIndex+1));
+    return Range(startRange, endRange);
 };
 
-std::vector<std::pair<int,int>> parseInputFile(std::ifstream & input){
+RangeList parseInputFile(std::ifstream & input){
     std::string strLine;
-    std::vector<std::pair<int,int>> rangeList;
+    RangeList rangeList;
     while (std::getline(input, strLine, ',')){
-        std::pair<int,int> range = splitRangeString(strLine);
+        Range range = splitRangeString(strLine);
         std::cout << "Start: " << range.first << " End: " << range.second << std::endl;
         rangeList.push_back(range);
     }
@@ -47,7 +50,7 @@ int main(int argc, char* argv[] ){
     }
 
     // Parse input
-    std::vector<std::pair<int,int>> rangeList = parseInputFile(inputFile);
+    RangeList rangeList = parseInputFile(inputFile);
 
     // Loop through range list
     // Check if number of digits is even or odd
