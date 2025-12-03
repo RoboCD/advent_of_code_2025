@@ -35,18 +35,43 @@ RangeList parseInputFile(std::ifstream & input){
     return rangeList;
 };
 
-bool isIdInvalid(unsigned long long id){
+bool isIdInvalid(unsigned long long id, bool part2){
     std::string stringId = std::to_string(id);
 
     int idLength = stringId.length();
     // If idLength is odd, return false
-    if (idLength%2 != 0){
+    if (!part2 && idLength%2 != 0){
         return false;
     }
 
-    unsigned long long idHalf1 = std::stoull(stringId.substr(0,idLength/2));
-    unsigned long long idHalf2 = std::stoull(stringId.substr((idLength/2)));
-    return idHalf1 == idHalf2;
+    if (!part2){
+        unsigned long long idHalf1 = std::stoull(stringId.substr(0,idLength/2));
+        unsigned long long idHalf2 = std::stoull(stringId.substr((idLength/2)));
+        return idHalf1 == idHalf2;
+    }
+    else{
+        std::string subStr1;
+        std::string subStr2;
+        // Grab the first substring starting at the beginning, then grab the second substring right after it
+        for(int i = 1; i <= idLength/2; i++){
+            subStr1 = stringId.substr(0,i);
+            // std::cout << "Checking substring " << subStr1 << " in id " << stringId << std::endl;
+            for (int j = i; j < idLength; j+=i){
+                subStr2 = stringId.substr(j,i);
+
+                // If substrings don't match, break out of this loop and grab a new first substring
+                if (subStr1 != subStr2){
+                        break;
+                }
+            }
+            // If we've looped through all the secondary substrings and they still match, return true
+            if (subStr1 == subStr2){
+                return true;
+            }
+
+        }
+        return subStr1 == subStr2;
+    }
 };
 
 bool isRangeValid(Range range){
@@ -63,16 +88,16 @@ bool isRangeValid(Range range){
     return true;
 };
 
-std::vector<unsigned long long> getInvalidIds(Range range){
+std::vector<unsigned long long> getInvalidIds(Range range, bool part2){
     std::vector<unsigned long long> invalidIdsList{};
     // Check if number of digits is even or odd
     // If both odd and same length, skip that range
-    if (!isRangeValid(range)){
+    if (!part2 && !isRangeValid(range)){
         return invalidIdsList;
     }
 
     for (unsigned long long id = range.first; id <= range.second; id++){
-        if(isIdInvalid(id)){
+        if(isIdInvalid(id, part2)){
             std::cout << "Invalid Id: " << id << std::endl;
             invalidIdsList.push_back(id);
         }
@@ -81,6 +106,10 @@ std::vector<unsigned long long> getInvalidIds(Range range){
 };
 
 int main(int argc, char* argv[] ){
+
+    // Flag to trigger part 1 or part 2. Change to false for part 1
+    bool part2{true};
+
     // Ensure 2 arguments total
     if (argc != 2){
         std::cerr << "Error, incorrect number of arguments: " << argc << std::endl;
@@ -102,7 +131,7 @@ int main(int argc, char* argv[] ){
     unsigned long long totalInvalidIds{0};
     for (const auto & r: rangeList){
         std::cout << "Start: " << r.first << " End: " << r.second << std::endl;
-        auto invalidIds = getInvalidIds(r);
+        auto invalidIds = getInvalidIds(r, part2);
         for (const auto & i: invalidIds){
             totalInvalidIds += i;
         }
