@@ -11,6 +11,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <regex>
 
 using Range = std::pair<unsigned long long, unsigned long long>;
 using RangeList = std::vector<Range>;
@@ -18,8 +19,8 @@ using RangeList = std::vector<Range>;
 Range splitRangeString(std::string rangeStr){
     size_t hyphenIndex{};
     hyphenIndex = rangeStr.find('-');
-    long startRange = std::stoull(rangeStr.substr(0,hyphenIndex));
-    long endRange = std::stoull(rangeStr.substr(hyphenIndex+1));
+    unsigned long long startRange = std::stoull(rangeStr.substr(0,hyphenIndex));
+    unsigned long long endRange = std::stoull(rangeStr.substr(hyphenIndex+1));
     return Range(startRange, endRange);
 };
 
@@ -28,10 +29,55 @@ RangeList parseInputFile(std::ifstream & input){
     RangeList rangeList;
     while (std::getline(input, strLine, ',')){
         Range range = splitRangeString(strLine);
-        std::cout << "Start: " << range.first << " End: " << range.second << std::endl;
+        // std::cout << "Start: " << range.first << " End: " << range.second << std::endl;
         rangeList.push_back(range);
     }
     return rangeList;
+};
+
+bool isIdInvalid(unsigned long long id){
+    std::string stringId = std::to_string(id);
+
+    int idLength = stringId.length();
+    // If idLength is odd, return false
+    if (idLength%2 != 0){
+        return false;
+    }
+
+    unsigned long long idHalf1 = std::stoull(stringId.substr(0,idLength/2));
+    unsigned long long idHalf2 = std::stoull(stringId.substr((idLength/2)));
+    return idHalf1 == idHalf2;
+};
+
+bool isRangeValid(Range range){
+    int firstLength = std::to_string(range.first).length();
+    int secondLength = std::to_string(range.second).length();
+    bool firstEven{firstLength%2 == 0};
+    bool secondEven{secondLength%2 == 0};
+
+    // If both odd and same length, return false
+    if (!(firstEven && secondEven) && (firstLength == secondLength)){
+        return false;
+    }
+    // If either length is even, return true
+    return true;
+};
+
+std::vector<unsigned long long> getInvalidIds(Range range){
+    std::vector<unsigned long long> invalidIdsList{};
+    // Check if number of digits is even or odd
+    // If both odd and same length, skip that range
+    if (!isRangeValid(range)){
+        return invalidIdsList;
+    }
+
+    for (unsigned long long id = range.first; id <= range.second; id++){
+        if(isIdInvalid(id)){
+            std::cout << "Invalid Id: " << id << std::endl;
+            invalidIdsList.push_back(id);
+        }
+    }
+    return invalidIdsList;
 };
 
 int main(int argc, char* argv[] ){
@@ -53,7 +99,14 @@ int main(int argc, char* argv[] ){
     RangeList rangeList = parseInputFile(inputFile);
 
     // Loop through range list
-    // Check if number of digits is even or odd
-    // If both odd and same length, skip that range
+    unsigned long long totalInvalidIds{0};
+    for (const auto & r: rangeList){
+        std::cout << "Start: " << r.first << " End: " << r.second << std::endl;
+        auto invalidIds = getInvalidIds(r);
+        for (const auto & i: invalidIds){
+            totalInvalidIds += i;
+        }
+    }
 
+    std::cout << "Invalid IDs sum: " << totalInvalidIds << std::endl;
 }
