@@ -50,8 +50,8 @@ bool isIdInvalid(unsigned long long id, bool part2){
         return idHalf1 == idHalf2;
     }
     else{
-        std::string subStr1;
-        std::string subStr2;
+        std::string subStr1{stringId.substr(0,1)};
+        std::string subStr2{""};
         // Grab the first substring starting at the beginning, then grab the second substring right after it
         for(int i = 1; i <= idLength/2; i++){
             subStr1 = stringId.substr(0,i);
@@ -61,7 +61,7 @@ bool isIdInvalid(unsigned long long id, bool part2){
 
                 // If substrings don't match, break out of this loop and grab a new first substring
                 if (subStr1 != subStr2){
-                        break;
+                    break;
                 }
             }
             // If we've looped through all the secondary substrings and they still match, return true
