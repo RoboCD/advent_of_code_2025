@@ -7,18 +7,34 @@
  * @copyright Copyright (c) 2025
  *
  */
+#include <algorithm>
+#include <array>
 #include <fstream>
 #include <iostream>
 #include <vector>
 #include <string>
+#include <sstream>
 
 int parseInputJoltageBanks(std::ifstream & input){
-    std::string bank;
+    std::string bank{};
     int totalJoltage{0};
-    while (std::getline(input, bank)){
-        int bankSize = bank.length();
-        // std::array<int,bankSize> bankArray{};
+    while (std::getline(input, bank, '\n')){
+        std::cout << "bank: " << bank << "." << std::endl;
+        std::size_t bankSize = bank.size();
+        std::cout << bank.size() << std::endl;
+
         std::vector<int> bankArray(bankSize);
+        for (std::size_t i = 0; i < bankSize; i++){
+            // Subtract '0' to conver the ASCII to the actual digit value
+            bankArray[i] = bank[i] - '0';
+        }
+        std::sort(bankArray.begin(), bankArray.end(), [](int a, int b){
+            return a > b;
+        });
+
+        std::cout << bankArray.size() << std::endl;
+        std::cout << "front " << bankArray.front() << std::endl;
+        std::cout << "back "  << bankArray.back() << std::endl;
     }
     return totalJoltage;
 };
@@ -55,4 +71,6 @@ int main (int argc, char* argv[]){
 
     // Take a sub section of the array starting after that first value
     // Sort that array and return the highest number
+
+    std::cout << "total: " << totalJoltage << std::endl;
 }
